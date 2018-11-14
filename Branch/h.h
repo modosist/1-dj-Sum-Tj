@@ -119,7 +119,7 @@ inline T* ALLOC0(int n)
 #endif
 
 	if (res == NULL){
-		cerr << "ALLOC0: Fail on memory allocation ! sizeof=" << sizeof(T) << "; n=" << n << "; membytes = " << Problem::pbMemo.bytesMem << "; nbentry = " << Problem::pbMemo.nbentry << "; ram = " << get_ram_usage() << ". Deleting mem items...\n";
+	//	cerr << "ALLOC0: Fail on memory allocation ! sizeof=" << sizeof(T) << "; n=" << n << "; membytes = " << Problem::pbMemo.bytesMem << "; nbentry = " << Problem::pbMemo.nbentry << "; ram = " << get_ram_usage() << ". Deleting mem items...\n";
 		Config::MALLOC_FAILED = true;
 		Mem& memo = Problem::pbMemo;
 		long long lim = memo.DB_LIM;
