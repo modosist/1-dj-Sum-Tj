@@ -8,6 +8,8 @@
 #include <list>
 #include <unordered_map>
 #include "h.h"
+#include "Job.h"
+
 using namespace std;
 extern ofstream logfile;
 

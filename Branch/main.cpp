@@ -729,6 +729,8 @@ long long get_ram_usage(){
 #else
 #include <time.h>
 #include <sys/time.h>
+#include <cstring>
+
 double get_wall_time(){
 	struct timeval time;
 	if (gettimeofday(&time, NULL)){
