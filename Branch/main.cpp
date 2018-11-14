@@ -76,8 +76,6 @@ string dataFolder = "data\\";
 ofstream logfile;
 int run();
 void eatMemoryBy1G();
-void getHardInfo();
-void setMaxMemLimit(long long);
 void resetStatic();
 void writeResHeader(string filename);
 
@@ -791,24 +789,3 @@ void eatMemoryBy1G(){
 		if (cmd == 's')break;
 	}
 }
-
-void getHardInfo(){
-	SYSTEM_INFO siSysInfo;
-	// Copy the hardware information to the SYSTEM_INFO structure. 
-	GetSystemInfo(&siSysInfo);
-	// Display the contents of the SYSTEM_INFO structure. 
-	printf("  Page size: %u\n", siSysInfo.dwPageSize); // return 4096! 4K
-}
-
-void setMaxMemLimit(long long limit){
-	auto job = CreateJobObject(NULL, NULL);
-	FAIL_ON(job == NULL);
-	FAIL_ON(0==AssignProcessToJobObject(job, GetCurrentProcess()));
-	JOBOBJECT_BASIC_LIMIT_INFORMATION basicInfo;
-	basicInfo.LimitFlags = JOB_OBJECT_LIMIT_PROCESS_MEMORY;
-	JOBOBJECT_EXTENDED_LIMIT_INFORMATION extInfo;
-	extInfo.BasicLimitInformation = basicInfo;
-	extInfo.ProcessMemoryLimit = limit;
-	FAIL_ON(0==SetInformationJobObject(job, JobObjectExtendedLimitInformation, &extInfo, sizeof(extInfo)));
-}
-//	BOOL b = SetProcessWorkingSetSize(GetCurrentProcess(),100000000,200000000); This is not a hard limit, system only attempts to respect it.
