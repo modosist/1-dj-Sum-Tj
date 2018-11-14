@@ -23,13 +23,17 @@
 #include <map>
 #include <set>
 #include <memory>
-#include <direct.h>
 #include <ctime>
 #include <tuple>
 #include <list>
 #include <numeric>
+
+#ifdef _WIN32
+#include <direct.h>
 #include "windows.h"
 #include "psapi.h"	//for Windows' getProcess...
+#endif
+
 using namespace std;
 
 ///////////////////////
