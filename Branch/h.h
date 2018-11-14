@@ -102,6 +102,9 @@ using namespace std;
 extern "C" void* dlmalloc(size_t);
 extern "C" void dlfree(void *p);
 class Problem;
+struct Config;
+struct Result;
+struct Stat;
 extern ofstream logfile;
 
 template<typename T>
