@@ -105,17 +105,6 @@ class Problem;
 extern ofstream logfile;
 
 template<typename T>
-inline T* ALLOC(int n)
-{
-	if (n <= 0)return NULL;
-#ifdef ENALBE_ALLOC
-	return Alloc::alloc<T>(n);
-#else
-	return ALLOC0<T>(n);
-#endif
-}
-
-template<typename T>
 inline T* ALLOC0(int n)
 {
 	if (n <= 0)return NULL;
@@ -155,6 +144,28 @@ inline T* ALLOC0(int n)
 	return res;
 }
 
+template<typename T>
+inline T* ALLOC(int n)
+{
+    if (n <= 0)return NULL;
+#ifdef ENALBE_ALLOC
+    return Alloc::alloc<T>(n);
+#else
+    return ALLOC0<T>(n);
+#endif
+}
+
+template <typename T>
+inline void FREE0(T ** ptr){
+	if (ptr == NULL || *ptr == NULL) return;
+#ifdef USE_VIRTUAL_ALLOC
+		VirtualFree(*ptr, 0, MEM_RELEASE);
+#else
+	FREE_FUNC(*ptr);
+#endif
+	*ptr = NULL;
+}
+
 template <typename T>
 inline void FREE(T ** ptr, int n=-1){
 	if (ptr==NULL || *ptr == NULL) return;
@@ -166,17 +177,6 @@ inline void FREE(T ** ptr, int n=-1){
 #else
 	FREE0<T>(ptr);
 #endif
-}
-
-template <typename T>
-inline void FREE0(T ** ptr){
-	if (ptr == NULL || *ptr == NULL) return;
-#ifdef USE_VIRTUAL_ALLOC
-	VirtualFree(*ptr, 0, MEM_RELEASE);
-#else	
-	FREE_FUNC(*ptr);
-#endif
-	*ptr = NULL;
 }
 
 template<typename T>
