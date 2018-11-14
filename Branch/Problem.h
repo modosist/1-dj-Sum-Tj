@@ -170,7 +170,7 @@ public:
 	PtrPos reducedList();
 
 	// Compute T(n,i) in the paper: tt of the edd sequence with the longest job switched to pos i
-	int* Problem::computeTni(PtrJobIndexConst edd2, int n, short indN, int startT);
+	int* computeTni(PtrJobIndexConst edd2, int n, short indN, int startt);
 
 	// This is the method to call
 	PtrJob solve(int & ttOut, short paraK = 0);
@@ -478,7 +478,7 @@ INLINE PtrPos Problem::reducedList()
 	PtrJobIndex edd2 = edd;
 	int indN_EDD2 = indN_EDD;
 	//Tni(r-indN_EDD2) is the tt of edd2 with the longest job moved to position r
-	int* Tni = computeTni(edd2, N, indN_EDD2, startT);				  
+	int* Tni = computeTni(edd2, N, indN_EDD2, startT);
 
 	int minTT = INT_MAX;													  // Used for rule 4.3
 	Cn[0] = startT;
@@ -486,7 +486,7 @@ INLINE PtrPos Problem::reducedList()
 	for (int r = indN_EDD; r < N; r++){// Test each potential position
 
 		if (r > indN_EDD){
-			Cn[r - indN_EDD] = Cn[r - indN_EDD - 1] + EDD(r).p;               // Cn[r-indN_EDD] = Cn(r) 
+			Cn[r - indN_EDD] = Cn[r - indN_EDD - 1] + EDD(r).p;               // Cn[r-indN_EDD] = Cn(r)
 		}
 		if (r >= indN_EDD + 2)
 			maxDP = max(maxDP, EDD(r - 1).d + EDD(r - 1).p);                   // For Rule 3.
