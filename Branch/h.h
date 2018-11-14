@@ -27,6 +27,7 @@
 #include <tuple>
 #include <list>
 #include <numeric>
+#include <climits>
 
 #ifdef _WIN32
 #include <direct.h>
