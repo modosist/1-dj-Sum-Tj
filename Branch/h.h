@@ -122,6 +122,9 @@ inline T* ALLOC0(int n)
 #endif
 
 	if (res == NULL){
+	    cerr << "Shrinking the problem database not currently supported on Linux" << endl;
+	    exit(1);
+	    /*
 	//	cerr << "ALLOC0: Fail on memory allocation ! sizeof=" << sizeof(T) << "; n=" << n << "; membytes = " << Problem::pbMemo.bytesMem << "; nbentry = " << Problem::pbMemo.nbentry << "; ram = " << get_ram_usage() << ". Deleting mem items...\n";
 		Config::MALLOC_FAILED = true;
 		Mem& memo = Problem::pbMemo;
@@ -147,6 +150,7 @@ inline T* ALLOC0(int n)
 		if (memo.DB_LIM > _1M) memo.removeOldDownToLim(false);
 		else cerr << "ALLOC0: Bytemem now < 1M !";
 		memo.DB_LIM = lim;
+	     */
 	}
 	return res;
 }
