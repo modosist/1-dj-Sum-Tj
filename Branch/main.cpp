@@ -6,6 +6,7 @@
 #include "Problem.h"
 //using namespace std::chrono;
 
+
 // Here are default values of parameters. They may be overwritten by the config file
 int Config::SIZE_START = 100;   
 int Config::SIZE_STEP = 0;   
@@ -71,8 +72,8 @@ int Alloc::maxIUsed = 0;
 
 // Var/functions declarations
 string fileSuffix = ".txt"; //"_turk.txt";
-string outFolder = "out\\";
-string dataFolder = "data\\";
+string outFolder = "out/";
+string dataFolder = "data/";
 ofstream logfile;
 int run();
 void eatMemoryBy1G();
@@ -206,7 +207,7 @@ int run()
 						continue;
 					// Here we read instances, solve them and measure time
 					ss.str("");
-					ss << dataFolder << sIns << "\\SDT_"<<sIns<<"_"<<setprecision(1)<<fixed<<R<<"_"<<T<<"_"<<(j+1)<< fileSuffix;
+					ss << dataFolder << sIns << "/SDT_"<<sIns<<"_"<<setprecision(1)<<fixed<<R<<"_"<<T<<"_"<<(j+1)<< fileSuffix;
 					ifstream file(ss.str());
 					if (!file) {
 						cout << ss.str() << " not found. Exiting..." << endl; return 0;
@@ -241,7 +242,7 @@ int run()
 						// Call another program to solve each instance
 						if (Config::USE_SLAVE) {
 							cout << "==========\nSolving Instance " << ss.str() << "...";
-							int pos = Config::PROG_NAME.find_last_of('\\');
+							int pos = Config::PROG_NAME.find_last_of('/');
 							string currDir = (pos == Config::PROG_NAME.npos) ? "" : Config::PROG_NAME.substr(0, pos+1);
 							if (Config::EXE == "self.exe") {
 								ss.str("");
@@ -346,7 +347,7 @@ int run()
 						if (toRemove) { ::remove(logFileName.c_str()); }
 
 #if defined(MEM_LOG_ML)
-						ss.str(""); ss << "ml\\memlog_" << sizeIns << "_" << idIns << ".txt";
+						ss.str(""); ss << "ml/memlog_" << sizeIns << "_" << idIns << ".txt";
 						ofstream logmem(ss.str());
 						Problem::pbMemo.log(logmem);
 #endif
