@@ -28,6 +28,7 @@
 #include <list>
 #include <numeric>
 #include <climits>
+#include <cstring>
 
 #ifdef _WIN32
 #include <direct.h>
@@ -475,6 +476,7 @@ public:
 		Pool& operator=(Pool&p) = default;
 	public:
 		explicit Pool(Pool&p){ cerr << "Copy constructor of Pool should not be called.\n"; };
+		explicit Pool(const Pool&p){ cerr << "Copy constructor of Pool should not be called.\n"; };
 		list<void*> blockList;
 		Pool(){}
 		int clean(){ // Release unused blocks. Called when memory not sufficient.
