@@ -76,6 +76,7 @@ string outFolder = "out/";
 string dataFolder = "data/";
 ofstream logfile;
 int run();
+void runOne(string instancePath, string solutionPath);
 void eatMemoryBy1G();
 void resetStatic();
 void writeResHeader(string filename);
@@ -86,19 +87,18 @@ int main(int argc, char* argv[]){
 	Config::PROG_NAME = string(argv[0]);
 	Config::CONFIG_FILE = argc > 1 ? argv[1] : "config.ini";
 	Config::readConfig(Config::CONFIG_FILE);
-	if (argc == 4)
-	{
-		// If called in solve_one mode instead of tester mode
-		Config::IS_SLAVE = true;
-		Config::SELF_SLAVE = false;
-		Config::USE_SLAVE = false;
-		Config::SIZE_START = atoi(argv[2]);
-		Config::ID_START = atoi(argv[3]);
-		Config::SOLVE_ONE = 1;
-		Config::EXE = "";
-		Config::NOTIF = "";
-		cout << "Slave: ";
-	}else	Config::printConfig();
+    if (argc == 4) {
+	    // Solve only one instance passed as command line argument.
+        Config::IS_SLAVE = true;
+        Config::SELF_SLAVE = false;
+        Config::USE_SLAVE = false;
+        Config::SOLVE_ONE = 1;
+        Config::EXE = "";
+        Config::NOTIF = "";
+        runOne(argv[2], argv[3]);
+        return 0;
+	}
+	else	Config::printConfig();
 	FAIL_ON(sizeof(Job) != 8);	// See max_size_unit_block
 	if (!Config::USE_SLAVE){
 		//cout << "Set hard mem limit to " << Config::RAM_LIM_MO + 500 << endl;
@@ -116,6 +116,53 @@ int main(int argc, char* argv[]){
 
 void saveCurrentRes(string filename, const Result & res);
 void makeStat(string filename, Result* result, int nbIns = 200, int nbInsPerRT = 10);
+
+void runOne(string instancePath, string outputPath) {
+    ifstream file(instancePath);
+    if (!file) {
+        cout << instancePath << " not found. Exiting..." << endl; return;
+    }
+
+    // Ignore comments
+    while (file.peek() == '#')file.ignore(1000, '\n');
+    short p;
+    int d;
+    Problem::currIns.clear();
+    short k = 0;
+    while (file.eof() == false) {
+        file >> p >> d;
+        Problem::currIns.emplace_back(k + 1, p, d);
+        k++;
+    }
+
+    // Solve using the current code
+    // Init before solving
+    SolvedPb::ptrCurrIns = &Problem::currIns;
+    Config::CURR_SIZE_INS = Problem::currIns.size();
+    Config::MALLOC_FAILED = false;
+    resetStatic();
+
+    Alloc::init();
+    logfile.open("log.txt", ios::out);
+
+    Problem pb(Problem::currIns.size());
+    FOR_E(ijob, Problem::currIns.size())pb.jobs[ijob] = Problem::currIns[ijob];
+    pb.init();
+
+    int ttRes = 0;
+    //clock_t time = clock();
+    double timew = get_wall_time();
+    double timec = get_cpu_time();
+    //auto cyc = get_cpu_cycle();
+    auto res = pb.solve(ttRes, short(Config::K));
+    ttRes = Problem::TT(res, pb.N).first;
+
+    cout << "Total tardiness: " << ttRes << endl;
+
+    ofstream outputFile(outputPath, ios::trunc);
+    outputFile << ttRes;
+}
+
 int run()
 {
     stringstream ss;
