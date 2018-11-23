@@ -31,9 +31,11 @@
 #include <cstring>
 
 #ifdef _WIN32
-#include <direct.h>
-#include "windows.h"
-#include "psapi.h"	//for Windows' getProcess...
+    #include <direct.h>
+    #include "windows.h"
+    #include "psapi.h"	//for Windows' getProcess...
+#else
+    #include <unistd.h>
 #endif
 
 using namespace std;
@@ -255,7 +257,12 @@ struct Config
             return false;
         } else
         {
-            char* buffer = _getcwd(NULL, 0);
+            char* buffer;
+#ifdef _WIN32
+            buffer = _getcwd(NULL, 0);
+#else
+			buffer = getcwd(NULL, 0);
+#endif
 			cout << "Config file: " << buffer << "\\" << fname << endl;
             free(buffer);
         }
