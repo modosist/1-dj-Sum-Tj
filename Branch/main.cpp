@@ -80,10 +80,22 @@ void runOne(string instancePath, string solutionPath);
 void eatMemoryBy1G();
 void resetStatic();
 void writeResHeader(string filename);
+void fromConsole();
 
 // Main function
 int main(int argc, char* argv[]){
-    std::ios_base::sync_with_stdio(false);	// To be faster
+//    std::ios_base::sync_with_stdio(false);	// To be faster
+	if (argc == 1) {
+		cout << "\nGet me more parameters.\n";
+		return 0;
+	}
+	char* cflag = "-c";
+	if (argc == 3 && strcmp(cflag, argv[2]) == 0) {
+		cout << "console\n";
+		//cout << 11 << "\n";
+		fromConsole();
+		return 0;
+	}
 	Config::PROG_NAME = string(argv[0]);
 	Config::CONFIG_FILE = argc > 1 ? argv[1] : "config.ini";
 	Config::readConfig(Config::CONFIG_FILE);
@@ -112,6 +124,89 @@ int main(int argc, char* argv[]){
 		//cin.get();
 	}
     return 0;
+}
+
+int runProblem() {
+	SolvedPb::ptrCurrIns = &Problem::currIns;
+	Config::CURR_SIZE_INS = Problem::currIns.size();
+	Config::MALLOC_FAILED = false;
+	resetStatic();
+
+	Alloc::init();
+
+	Problem pb(Problem::currIns.size());
+	FOR_E(ijob, Problem::currIns.size())pb.jobs[ijob] = Problem::currIns[ijob];
+	pb.init();
+
+	int ttRes = 0;
+	//clock_t time = clock();
+	double timew = get_wall_time();
+	double timec = get_cpu_time();
+	//auto cyc = get_cpu_cycle();
+	auto res = pb.solve(ttRes, short(Config::K));
+	ttRes = Problem::TT(res, pb.N).first;
+	return ttRes;
+}
+
+void fromConsole() {
+	boolean stop = false;
+	logfile.open("log.txt", ios::out);
+
+	while (true) {
+		short p;
+		int d;
+		Problem::currIns.clear();
+		short k = 0;
+		while (true) {
+			cin >> p >> d;
+			//cout << p << d << "\n";
+			if (p == 0 && d == 0) {
+				if (k == 0) {
+					stop = true;
+				}
+				break;
+			}
+			Problem::currIns.emplace_back(k + 1, p, d);
+			k++;
+		}
+		if (stop) {
+			break;
+		}
+
+		cout << ">>start solving\n";
+		int ttRes = 0;
+		ttRes = runProblem();
+		cout << ttRes << " \n ";
+		cout << std::flush;
+	}
+}
+
+void runOne(string instancePath, string outputPath) {
+	logfile.open("log.txt", ios::out);
+	ifstream file(instancePath);
+	if (!file) {
+		cout << instancePath << " not found. Exiting..." << endl; return;
+	}
+
+	// Ignore comments
+	while (file.peek() == '#')file.ignore(1000, '\n');
+	short p;
+	int d;
+	Problem::currIns.clear();
+	short k = 0;
+	while (file.eof() == false) {
+		file >> p >> d;
+		Problem::currIns.emplace_back(k + 1, p, d);
+		k++;
+	}
+
+	// Solve using the current code
+	// Init before solving
+	int ttRes = 0;
+	ttRes = runProblem();
+	cout << "Total tardiness: " << ttRes << endl;
+	ofstream outputFile(outputPath, ios::trunc);
+	outputFile << ttRes;
 }
 
 void saveCurrentRes(string filename, const Result & res);
