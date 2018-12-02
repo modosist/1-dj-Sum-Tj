@@ -212,52 +212,6 @@ void runOne(string instancePath, string outputPath) {
 void saveCurrentRes(string filename, const Result & res);
 void makeStat(string filename, Result* result, int nbIns = 200, int nbInsPerRT = 10);
 
-void runOne(string instancePath, string outputPath) {
-    ifstream file(instancePath);
-    if (!file) {
-        cout << instancePath << " not found. Exiting..." << endl; return;
-    }
-
-    // Ignore comments
-    while (file.peek() == '#')file.ignore(1000, '\n');
-    short p;
-    int d;
-    Problem::currIns.clear();
-    short k = 0;
-    while (file.eof() == false) {
-        file >> p >> d;
-        Problem::currIns.emplace_back(k + 1, p, d);
-        k++;
-    }
-
-    // Solve using the current code
-    // Init before solving
-    SolvedPb::ptrCurrIns = &Problem::currIns;
-    Config::CURR_SIZE_INS = Problem::currIns.size();
-    Config::MALLOC_FAILED = false;
-    resetStatic();
-
-    Alloc::init();
-    logfile.open("log.txt", ios::out);
-
-    Problem pb(Problem::currIns.size());
-    FOR_E(ijob, Problem::currIns.size())pb.jobs[ijob] = Problem::currIns[ijob];
-    pb.init();
-
-    int ttRes = 0;
-    //clock_t time = clock();
-    double timew = get_wall_time();
-    double timec = get_cpu_time();
-    //auto cyc = get_cpu_cycle();
-    auto res = pb.solve(ttRes, short(Config::K));
-    ttRes = Problem::TT(res, pb.N).first;
-
-    cout << "Total tardiness: " << ttRes << endl;
-
-    ofstream outputFile(outputPath, ios::trunc);
-    outputFile << ttRes;
-}
-
 int run()
 {
     stringstream ss;
