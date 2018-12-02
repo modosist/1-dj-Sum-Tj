@@ -91,7 +91,7 @@ int main(int argc, char* argv[]){
 	}
 	char* cflag = "-c";
 	if (argc == 3 && strcmp(cflag, argv[2]) == 0) {
-		cout << "console\n";
+		cout << ">>console\n";
 		//cout << 11 << "\n";
 		fromConsole();
 		return 0;
