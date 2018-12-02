@@ -89,8 +89,8 @@ int main(int argc, char* argv[]){
 		cout << "\nGet me more parameters.\n";
 		return 0;
 	}
-	char* cflag = "-c";
-	if (argc == 3 && strcmp(cflag, argv[2]) == 0) {
+	string cflag = "-c";
+	if (argc == 3 && strcmp(cflag.data(), argv[2]) == 0) {
 		cout << ">>console\n";
 		//cout << 11 << "\n";
 		fromConsole();
@@ -149,7 +149,7 @@ int runProblem() {
 }
 
 void fromConsole() {
-	boolean stop = false;
+	bool stop = false;
 	logfile.open("log.txt", ios::out);
 
 	while (true) {
