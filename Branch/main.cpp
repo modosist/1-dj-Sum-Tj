@@ -89,16 +89,24 @@ int main(int argc, char* argv[]){
 		cout << "\nGet me more parameters.\n";
 		return 0;
 	}
+    Config::PROG_NAME = string(argv[0]);
+    Config::CONFIG_FILE = argv[1];
+    Config::readConfig(Config::CONFIG_FILE);
 	string cflag = "-c";
 	if (argc == 3 && strcmp(cflag.data(), argv[2]) == 0) {
+	    //read instance from commandline, each instance end with two zeros, to end loop insert empty instance
+        Config::IS_SLAVE = true;
+        Config::SELF_SLAVE = false;
+        Config::USE_SLAVE = false;
+        Config::SOLVE_ONE = 1;
+        Config::EXE = "";
+        Config::NOTIF = "";
 		cout << ">>console\n";
-		//cout << 11 << "\n";
-		fromConsole();
+        cout << ">>" << Config::RAM_LIM_MO << "\n";
+        fromConsole();
 		return 0;
 	}
-	Config::PROG_NAME = string(argv[0]);
-	Config::CONFIG_FILE = argc > 1 ? argv[1] : "config.ini";
-	Config::readConfig(Config::CONFIG_FILE);
+
     if (argc == 4) {
 	    // Solve only one instance passed as command line argument.
         Config::IS_SLAVE = true;
@@ -194,13 +202,15 @@ void runOne(string instancePath, string outputPath) {
 	int d;
 	Problem::currIns.clear();
 	short k = 0;
+	cout << ">>start reading file\n";
 	while (file.eof() == false) {
 		file >> p >> d;
 		Problem::currIns.emplace_back(k + 1, p, d);
 		k++;
 	}
+    cout << ">>finish reading file\n";
 
-	// Solve using the current code
+    // Solve using the current code
 	// Init before solving
 	int ttRes = 0;
 	ttRes = runProblem();
