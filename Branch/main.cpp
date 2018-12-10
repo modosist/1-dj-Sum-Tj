@@ -135,6 +135,7 @@ int main(int argc, char* argv[]){
 }
 
 int runProblem() {
+    cout << ">>start solving\n";
 	SolvedPb::ptrCurrIns = &Problem::currIns;
 	Config::CURR_SIZE_INS = Problem::currIns.size();
 	Config::MALLOC_FAILED = false;
@@ -202,14 +203,16 @@ void runOne(string instancePath, string outputPath) {
 	int d;
 	Problem::currIns.clear();
 	short k = 0;
-	cout << ">>start reading file\n";
-	while (file.eof() == false) {
-		file >> p >> d;
-		Problem::currIns.emplace_back(k + 1, p, d);
-		k++;
-	}
-    cout << ">>finish reading file\n";
-
+    int psum, dsum;
+    psum = dsum = 0;
+    while (file.eof() == false) {
+        file >> p >> d;
+        psum += p;
+        dsum += d;
+        Problem::currIns.emplace_back(k + 1, p, d);
+        k++;
+    }
+    cout << ">> " << k << " " << psum << " " << dsum << "\n";
     // Solve using the current code
 	// Init before solving
 	int ttRes = 0;
