@@ -185,7 +185,7 @@ void fromConsole() {
 		cout << ">>start solving\n";
 		int ttRes = 0;
 		ttRes = runProblem();
-		cout << ttRes << " \n ";
+		cout << "<<" << ttRes << " \n ";
 		cout << std::flush;
 	}
 }
