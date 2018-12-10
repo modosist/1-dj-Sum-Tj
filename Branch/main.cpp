@@ -1,7 +1,7 @@
 #include <thread>
-#include <iomanip>
+//#include <iomanip>
 #include <exception>
-#include <cstdio>
+//#include <cstdio>
 #include "h.h"
 #include "Problem.h"
 //using namespace std::chrono;
@@ -80,26 +80,46 @@ void getHardInfo();
 void setMaxMemLimit(long long);
 void resetStatic();
 void writeResHeader(string filename);
-
+void fromConsole();
+void runOne(string instancePath, string solutionPath);
 // Main function
 int main(int argc, char* argv[]){
-    std::ios_base::sync_with_stdio(false);	// To be faster
+	if (argc == 1) {
+		cout << "\nGet me more parameters.\n";
+		return 0;
+	}
 	Config::PROG_NAME = string(argv[0]);
-	Config::CONFIG_FILE = argc > 1 ? argv[1] : "config.ini";
+	Config::CONFIG_FILE = argv[1];
 	Config::readConfig(Config::CONFIG_FILE);
-	if (argc == 4)
-	{
-		// If called in solve_one mode instead of tester mode
+	string cflag = "-c";
+	cout << argc << "\n";
+	if (argc == 3 && strcmp(cflag.data(), argv[2]) == 0) {
+		//read instance from commandline, each instance end with two zeros, to end loop insert empty instance
 		Config::IS_SLAVE = true;
 		Config::SELF_SLAVE = false;
 		Config::USE_SLAVE = false;
-		Config::SIZE_START = atoi(argv[2]);
-		Config::ID_START = atoi(argv[3]);
 		Config::SOLVE_ONE = 1;
 		Config::EXE = "";
 		Config::NOTIF = "";
-		cout << "Slave: ";
-	}else	Config::printConfig();
+		cout << ">>console\n";
+		cout << ">>" << Config::RAM_LIM_MO << "\n";
+		fromConsole();
+		return 0;
+	}
+
+	if (argc == 4) {
+		// Solve only one instance passed as command line argument.
+		Config::IS_SLAVE = true;
+		Config::SELF_SLAVE = false;
+		Config::USE_SLAVE = false;
+		Config::SOLVE_ONE = 1;
+		Config::EXE = "";
+		Config::NOTIF = "";
+		cout << ">> from file\n";
+		runOne(argv[2], argv[3]);
+		return 0;
+	}
+	else	Config::printConfig();
 	FAIL_ON(sizeof(Job) != 8);	// See max_size_unit_block
 	if (!Config::USE_SLAVE){
 		//cout << "Set hard mem limit to " << Config::RAM_LIM_MO + 500 << endl;
@@ -114,6 +134,95 @@ int main(int argc, char* argv[]){
 	}
     return 0;
 }
+
+int runProblem() {
+	cout << ">>start solving\n";
+	SolvedPb::ptrCurrIns = &Problem::currIns;
+	Config::CURR_SIZE_INS = Problem::currIns.size();
+	Config::MALLOC_FAILED = false;
+	resetStatic();
+
+	Alloc::init();
+
+	Problem pb(Problem::currIns.size());
+	FOR_E(ijob, Problem::currIns.size())pb.jobs[ijob] = Problem::currIns[ijob];
+	pb.init();
+
+	int ttRes = 0;
+	//clock_t time = clock();
+	double timew = get_wall_time();
+	double timec = get_cpu_time();
+	//auto cyc = get_cpu_cycle();
+	auto res = pb.solve(ttRes, short(Config::K));
+	ttRes = Problem::TT(res, pb.N).first;
+	return ttRes;
+}
+
+void fromConsole() {
+	boolean stop = false;
+	logfile.open("log.txt", ios::out);
+
+	while (true) {
+		short p;
+		int d;
+		Problem::currIns.clear();
+		short k = 0;
+		while (true) {
+			cin >> p >> d;
+			//cout << p << d << "\n";
+			if (p == 0 && d == 0) {
+				if (k == 0) {
+					stop = true;
+				}
+				break;
+			}
+			Problem::currIns.emplace_back(k + 1, p, d);
+			k++;
+		}
+		if (stop) {
+			break;
+		}
+
+		int ttRes = 0;
+		ttRes = runProblem();
+		cout << "<<" << ttRes << " \n ";
+		cout << std::flush;
+	}
+}
+
+void runOne(string instancePath, string outputPath) {
+	logfile.open("log.txt", ios::out);
+	ifstream file(instancePath);
+	if (!file) {
+		cout << instancePath << " not found. Exiting..." << endl; return;
+	}
+
+	// Ignore comments
+	while (file.peek() == '#')file.ignore(1000, '\n');
+	short p;
+	int d;
+	Problem::currIns.clear();
+	short k = 0;
+	int psum, dsum;
+	psum = dsum = 0;
+	while (file.eof() == false) {
+		file >> p >> d;
+		psum += p;
+		dsum += d;
+		Problem::currIns.emplace_back(k + 1, p, d);
+		k++;
+	}
+
+	// Solve using the current code
+	// Init before solving
+	int ttRes = 0;
+	cout << ">> " << k << " " << psum << " " << dsum << "\n";
+	ttRes = runProblem();
+	cout << "Total tardiness: " << ttRes << endl;
+	ofstream outputFile(outputPath, ios::trunc);
+	outputFile << ttRes;
+}
+
 
 void saveCurrentRes(string filename, const Result & res);
 void makeStat(string filename, Result* result, int nbIns = 200, int nbInsPerRT = 10);
@@ -704,26 +813,7 @@ ULONG64 get_cpu_cycle(){
 }
 
 long long get_ram_usage(){
-	static  HANDLE currProc = GetCurrentProcess();
-	PROCESS_MEMORY_COUNTERS pmc;
-	if (K32GetProcessMemoryInfo(currProc, &pmc, sizeof(pmc)))
-	{
-		//printf( "\tWorkingSetSize: %llu\n", pmc.WorkingSetSize );
-		//printf( "\tPagefileUsage (potential usage, not actual usage. Not 0 even with pagefile disabled...): %llu\n", pmc.PagefileUsage );		//!! When working set increases, pagefileusage also increases, which corresponds to "committed" column in task manager.
-		//printf("\tPageFaultCount: %llu\n", pmc.PageFaultCount);
-		//printf("\tPeakWorkingSetSize: %llu\n",
-		//	pmc.PeakWorkingSetSize);
-		//printf( "\tQuotaPeakPagedPoolUsage: %llu\n", 
-		//	pmc.QuotaPeakPagedPoolUsage );
-		//printf( "\tQuotaPagedPoolUsage: %llu\n", 
-		//	pmc.QuotaPagedPoolUsage );
-		//printf( "\tQuotaPeakNonPagedPoolUsage: %llu\n", 
-		//	pmc.QuotaPeakNonPagedPoolUsage );
-		//printf( "\tQuotaNonPagedPoolUsage: %llu\n", 
-		//	pmc.QuotaNonPagedPoolUsage );
-		//printf( "\tPeakPagefileUsage: %llu\n", pmc.PeakPagefileUsage );
-		return pmc.WorkingSetSize;
-	}
+
 	return -1;
 }
 
