@@ -875,7 +875,7 @@ long long get_ram_usage(){
         }
     }
     fclose(file);
-    return result * 1000;
+    return ((long long)result) * 1024;
 }
 #endif
 
