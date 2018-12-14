@@ -839,6 +839,8 @@ long long get_ram_usage(){
 #include <time.h>
 #include <sys/time.h>
 #include <cstring>
+#include <sys/time.h>
+#include <sys/resource.h>
 
 double get_wall_time(){
 	struct timeval time;
@@ -862,18 +864,10 @@ int parseLine(char* line){
     return i;
 }
 
-long long get_ram_usage(){
-    FILE* file = fopen("/proc/self/status", "r");
-    int result = -1;
-    char line[128];
 
-    while (fgets(line, 128, file) != NULL){
-        if (strncmp(line, "VmRSS:", 6) == 0){
-            result = parseLine(line);
-            break;
-        }
-    }
-    fclose(file);
-    return ((long long)result) * 1024;
+long long get_ram_usage(){
+	struct rusage u;
+	getrusage(RUSAGE_SELF, &u);
+	return u.ru_maxrss * 1024;
 }
 #endif
