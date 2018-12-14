@@ -77,7 +77,6 @@ string dataFolder = "data/";
 ofstream logfile;
 int run();
 void runOne(string instancePath, string solutionPath);
-void eatMemoryBy1G();
 void resetStatic();
 void writeResHeader(string filename);
 void fromConsole();
@@ -912,17 +911,3 @@ void testFree(){
 	getchar();
 }
 
-void eatMemoryBy1G(){
-	while (true){
-		FOR_E(i, 1000){
-			FAIL_ON(NULL == calloc(_1M, 1));
-			cout << i + 1 << "M" << endl;
-			get_ram_usage();
-			getchar();
-		}
-		cout << "1G eaten. Enter s to stop.";
-		char cmd = getchar();
-		cout << cmd<<endl;
-		if (cmd == 's')break;
-	}
-}
