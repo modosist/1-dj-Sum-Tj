@@ -877,37 +877,3 @@ long long get_ram_usage(){
     return ((long long)result) * 1024;
 }
 #endif
-
-/////////////////////////////////////////////////////////
-// Some experiments 
-/////////////////////////////////////////////////////////
-void testFree(){
-	// Observation: when free, small blocks are not released to os immediately: try unit_size=400, below i%10000;
-	//						   big blocks yes: try unit_size = 40960, below i%1000
-	int n = 1000000;
-	int unit_size = 400;	
-	long long ** ptrs = new long long *[n];
-	FOR_E(i, n){
-		//ptrs[i] = (long long *)malloc(unit_size);
-		ptrs[i] = new long long [unit_size/sizeof(long long)];
-		memset(ptrs[i], 1, unit_size);
-	}
-	cout << "Init finished. Press enter to continue.\n";
-	getchar();
-	cout << "Start freeing...\n";
-	int size_del = 0;
-	for (int i = 0; i < n; i++){
-		//free(ptrs[i]);
-		delete (ptrs[i]);
-		size_del += unit_size;
-		if (i % 10000 == 0){
-			cout << size_del << " Bytes Freed\n";
-			size_del = 0;
-			get_ram_usage();
-			getchar();
-		}
-	}
-	cout << "All freed";
-	getchar();
-}
-
