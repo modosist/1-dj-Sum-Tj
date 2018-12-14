@@ -77,7 +77,6 @@ string dataFolder = "data/";
 ofstream logfile;
 int run();
 void runOne(string instancePath, string solutionPath);
-void eatMemoryBy1G();
 void resetStatic();
 void writeResHeader(string filename);
 void fromConsole();
@@ -840,6 +839,8 @@ long long get_ram_usage(){
 #include <time.h>
 #include <sys/time.h>
 #include <cstring>
+#include <sys/time.h>
+#include <sys/resource.h>
 
 double get_wall_time(){
 	struct timeval time;
@@ -863,66 +864,10 @@ int parseLine(char* line){
     return i;
 }
 
-long long get_ram_usage(){
-    FILE* file = fopen("/proc/self/status", "r");
-    int result = -1;
-    char line[128];
 
-    while (fgets(line, 128, file) != NULL){
-        if (strncmp(line, "VmRSS:", 6) == 0){
-            result = parseLine(line);
-            break;
-        }
-    }
-    fclose(file);
-    return result * 1000;
+long long get_ram_usage(){
+	struct rusage u;
+	getrusage(RUSAGE_SELF, &u);
+	return u.ru_maxrss * 1024;
 }
 #endif
-
-/////////////////////////////////////////////////////////
-// Some experiments 
-/////////////////////////////////////////////////////////
-void testFree(){
-	// Observation: when free, small blocks are not released to os immediately: try unit_size=400, below i%10000;
-	//						   big blocks yes: try unit_size = 40960, below i%1000
-	int n = 1000000;
-	int unit_size = 400;	
-	long long ** ptrs = new long long *[n];
-	FOR_E(i, n){
-		//ptrs[i] = (long long *)malloc(unit_size);
-		ptrs[i] = new long long [unit_size/sizeof(long long)];
-		memset(ptrs[i], 1, unit_size);
-	}
-	cout << "Init finished. Press enter to continue.\n";
-	getchar();
-	cout << "Start freeing...\n";
-	int size_del = 0;
-	for (int i = 0; i < n; i++){
-		//free(ptrs[i]);
-		delete (ptrs[i]);
-		size_del += unit_size;
-		if (i % 10000 == 0){
-			cout << size_del << " Bytes Freed\n";
-			size_del = 0;
-			get_ram_usage();
-			getchar();
-		}
-	}
-	cout << "All freed";
-	getchar();
-}
-
-void eatMemoryBy1G(){
-	while (true){
-		FOR_E(i, 1000){
-			FAIL_ON(NULL == calloc(_1M, 1));
-			cout << i + 1 << "M" << endl;
-			get_ram_usage();
-			getchar();
-		}
-		cout << "1G eaten. Enter s to stop.";
-		char cmd = getchar();
-		cout << cmd<<endl;
-		if (cmd == 's')break;
-	}
-}
