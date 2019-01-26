@@ -217,8 +217,10 @@ void runOne(string instancePath, string outputPath) {
 	int ttRes = 0;
 	ttRes = runProblem();
 	cout << "Total tardiness: " << ttRes << endl;
-	ofstream outputFile(outputPath, ios::trunc);
-	outputFile << ttRes;
+    cout << "<<" << ttRes << " \n ";
+    cout << std::flush;
+    ofstream outputFile(outputPath, ios::trunc);
+    outputFile << ttRes;
 }
 
 void saveCurrentRes(string filename, const Result & res);
