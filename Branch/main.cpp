@@ -120,7 +120,8 @@ int main(int argc, char *argv[]) {
         Config::SOLVE_ONE = 1;
         Config::EXE = "";
         Config::NOTIF = "";
-        runOne(argv[3], argv[4], std::strtol(argv[5], nullptr, strlen(argv[5])));
+        runOne(argv[3], argv[4], std::stol(argv[5]));
+        //runOne(argv[3], argv[4], std::strtol(argv[5], nullptr, strlen(argv[5])));
         return 0;
     } else Config::printConfig();
     FAIL_ON(sizeof(Job) != 8);    // See max_size_unit_block
