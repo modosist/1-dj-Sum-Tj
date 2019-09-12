@@ -24,6 +24,8 @@
 
 #define EDD(i) (jobs[edd[i]])
 
+unsigned long time_in_ms();
+
 inline void msort(PtrJobConst jobs, PtrJobIndex edd, int n, bool func(JobIndex,JobIndex) ) 
 { Job::jobscmp = jobs; sort(edd, edd + n, func); }
 
@@ -276,7 +278,8 @@ public:
 	static pair<int, int> TT(JOBIDS beg, int n, int C = 0)
 	{
 		int tt = 0;
-		FOR_E(it, n){
+        for(int it=0; it<n; ++it){
+//		FOR_E(it, n){
 			C += currIns[ID(beg[it]) - 1].p;
 			tt += currIns[ID(beg[it]) - 1].T(C);
 		}
@@ -447,6 +450,8 @@ public:
 	}
 
 #pragma endregion
+
+    PtrJob solve_init(int &ttOut, short paraK, unsigned long stoptime);
 };
 
 //////////////////////////////////////////////
