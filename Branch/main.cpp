@@ -154,7 +154,7 @@ int runProblem(long time_limit) {
     if (time_limit > 0) {
         stop_time = time_in_ms() + time_limit;
     }
-    cout << "stop_time init: " << stop_time << endl;
+    cout << ">>time: " << time_in_ms()  << " time limit: " << time_limit << " stop_time init: " << stop_time << endl;
 
     int ttRes = INT_MAX;
     //clock_t time = clock();
